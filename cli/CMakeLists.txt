@@ -1,0 +1,1 @@
+add_executable("iltasatu_cli" "cli.cpp")
