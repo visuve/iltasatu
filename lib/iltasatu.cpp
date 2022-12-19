@@ -5,11 +5,11 @@
 #include "iltasatu.h"
 #include "iltasatu.hpp"
 
-IltasatuHandle* IltasatuInitialize(size_t size)
+IltasatuHandle IltasatuInitialize(size_t size)
 {
 	try
 	{
-		return reinterpret_cast<IltasatuHandle*>(new Iltasatu(size));
+		return reinterpret_cast<IltasatuHandle>(new Iltasatu(size));
 	}
 	catch (...)
 	{
@@ -17,7 +17,7 @@ IltasatuHandle* IltasatuInitialize(size_t size)
 	}
 }
 
-char* IltasatuGenerate(IltasatuHandle* handle)
+char* IltasatuGenerate(IltasatuHandle handle)
 {
 	if (!handle)
 	{
@@ -27,7 +27,7 @@ char* IltasatuGenerate(IltasatuHandle* handle)
 	return reinterpret_cast<Iltasatu*>(handle)->Generate();
 }
 
-void IltasatuDelete(IltasatuHandle* handle)
+void IltasatuDelete(IltasatuHandle handle)
 {
 	if (handle)
 	{

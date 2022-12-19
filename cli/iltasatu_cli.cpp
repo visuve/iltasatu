@@ -14,7 +14,7 @@ int main(int argc, char** argv)
 
 	const size_t bytes = std::stoi(argv[1]);
 
-	IltasatuHandle* iltasatu = IltasatuInitialize(bytes);
+	IltasatuHandle iltasatu = IltasatuInitialize(bytes);
 
 	char* data = IltasatuGenerate(iltasatu);
 

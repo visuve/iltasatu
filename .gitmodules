@@ -1,0 +1,4 @@
+[submodule "wxWidgets"]
+	path = wxWidgets
+	url = https://github.com/wxWidgets/wxWidgets
+	branch = 97e99707c5d2271a70cb686720b48dbf34ced496
