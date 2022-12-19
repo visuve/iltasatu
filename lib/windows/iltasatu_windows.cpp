@@ -25,7 +25,10 @@ Iltasatu::Iltasatu(IltasatuOptions options) :
 
 Iltasatu::~Iltasatu()
 {
-	BCryptCloseAlgorithmProvider(_context, 0);
+	if (_context)
+	{
+		BCryptCloseAlgorithmProvider(_context, 0);
+	}
 
 	delete[] _data;
 }

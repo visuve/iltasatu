@@ -15,7 +15,10 @@ Iltasatu::Iltasatu(IltasatuOptions options) :
 
 Iltasatu::~Iltasatu()
 {
-	fclose(reinterpret_cast<FILE*>(_context));
+	if (_context)
+	{
+		fclose(reinterpret_cast<FILE*>(_context));
+	}
 }
 
 char* Iltasatu::Generate()

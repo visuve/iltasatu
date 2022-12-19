@@ -98,16 +98,16 @@ void Iltasatu::Filter()
 
 	for (size_t i = 0; i < _options.Size; ++i)
 	{
-		char& current = _data[i];
+		char& x = _data[i];
 
-		auto iter = allowed.find(current);
+		auto iter = allowed.find(x);
 
 		if (iter == allowed.end())
 		{
 			iter = allowed.begin();
 			size_t randomIndex = RandomNumber(lastAllowedIndex);
 			std::advance(iter, randomIndex);
-			current = *iter;
+			x = *iter;
 		}
 	}
 }
