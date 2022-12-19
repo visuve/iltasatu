@@ -1,12 +1,11 @@
 #include "../iltasatu.hpp"
-
 #include <stdexcept>
 
-Iltasatu::Iltasatu(size_t size) :
-	_size(size),
-	_data(new char[size])
+Iltasatu::Iltasatu(IltasatuOptions options) :
+	_options(options),
+	_data(new char[options.Size])
 {
-	_context = fopen("/dev/random", "r");
+	_context = fopen("/dev/urandom", "r");
 
 	if (!_context)
 	{
@@ -26,7 +25,11 @@ char* Iltasatu::Generate()
 		return nullptr;
 	}
 
-	size_t bytesRead = fread(_data, sizeof(char), _size, reinterpret_cast<FILE*>(_context));
+	size_t bytesRead = fread(
+		_data, 
+		sizeof(char), 
+		_options.Size,
+		reinterpret_cast<FILE*>(_context));
 
-	return bytesRead == _size ? _data : nullptr;
+	return bytesRead == _options.Size ? _data : nullptr;
 }

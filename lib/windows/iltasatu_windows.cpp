@@ -1,15 +1,15 @@
 #include "../iltasatu.hpp"
 
 #include <stdexcept>
-
+#define NOMINMAX
 #include <Windows.h>
 #include <bcrypt.h>
 
 #pragma comment(lib, "bcrypt.lib")
 
-Iltasatu::Iltasatu(size_t size) :
-	_size(size),
-	_data(new char[size])
+Iltasatu::Iltasatu(IltasatuOptions options) :
+	_options(options),
+	_data(new char[options.Size])
 {
 	NTSTATUS status = BCryptOpenAlgorithmProvider(
 		reinterpret_cast<BCRYPT_ALG_HANDLE*>(&_context),
@@ -40,7 +40,7 @@ char* Iltasatu::Generate()
 	NTSTATUS status = BCryptGenRandom(
 		_context,
 		reinterpret_cast<PUCHAR>(_data),
-		static_cast<ULONG>(_size),
+		static_cast<ULONG>(_options.Size),
 		0);
 
 	return SUCCEEDED(status) ? _data : nullptr;

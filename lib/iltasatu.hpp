@@ -2,20 +2,22 @@
 	Iltasatu C++ class definition
 */
 
-#include "stddef.h"
+#pragma once
+
+#include "iltasatu.h"
 
 class Iltasatu
 {
 public:
-	Iltasatu(size_t size);
+	Iltasatu(IltasatuOptions);
 
 	virtual ~Iltasatu();
 
 	char* Generate();
+	void Filter();
 
 private:
 	void* _context = nullptr;
-
-	size_t _size = 0;
+	IltasatuOptions _options;
 	char* _data = nullptr;
 };

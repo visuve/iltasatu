@@ -8,11 +8,10 @@ namespace Styles
 	constexpr int Border = 3;
 }
 
-
-
 MainWindow::MainWindow() :
 	wxFrame(nullptr, wxID_ANY, wxT("Iltasatu"), wxDefaultPosition, wxSize(600, 800), Styles::Frame),
-	_passwordList(new wxTextCtrl(this, wxID_ANY))
+	_passwordList(
+		new wxTextCtrl(this, wxID_ANY, "Your passwords will be generated here", wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE))
 {
 	auto sizer = new wxBoxSizer(wxVERTICAL);
 
@@ -25,7 +24,7 @@ MainWindow::MainWindow() :
 			wxDefaultSize,
 			wxSP_ARROW_KEYS | wxALIGN_RIGHT,
 			3,
-			100,
+			128,
 			0);
 
 		passwordLength->Bind(wxEVT_SPINCTRL, [this](wxSpinEvent& e)->void
@@ -45,7 +44,7 @@ MainWindow::MainWindow() :
 			wxDefaultSize,
 			wxSP_ARROW_KEYS | wxALIGN_RIGHT,
 			1,
-			100,
+			1000,
 			0);
 
 		passwordCount->Bind(wxEVT_SPINCTRL, [this](wxSpinEvent& e)->void
@@ -76,11 +75,17 @@ void MainWindow::GeneratePasswords()
 {
 	_passwordList->Clear();
 
-	IltasatuHandle iltasatu = IltasatuInitialize(_passwordLength);
+	IltasatuOptions options;
+	options.Size = _passwordLength;
+	options.Mask = IltasatuMask::Uppercase | IltasatuMask::Lowercase;
+
+	IltasatuHandle iltasatu = IltasatuInitialize(options);
 
 	for (size_t i = 0; i < _passwordCount; ++i)
 	{
-		char* password = IltasatuGenerate(iltasatu);
+		const char* rawPassword = IltasatuGenerate(iltasatu);
+		auto password = wxString::FromAscii(rawPassword, _passwordLength);
+
 		_passwordList->AppendText(password);
 		_passwordList->AppendText('\n');
 	}
