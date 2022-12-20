@@ -11,10 +11,11 @@ namespace Style
 MainWindow::MainWindow() :
 	wxFrame(nullptr, wxID_ANY, wxT("Iltasatu"), wxDefaultPosition, wxSize(800, 600), Style::Frame),
 	_passwordList(
-		new wxTextCtrl(this, wxID_ANY, "Your passwords will be generated here", wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE))
+		new wxTextCtrl(this, wxID_ANY, "Your passwords will be generated here", wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE)),
+	_characterMask(IltasatuMask::Punctuation | IltasatuMask::Number | IltasatuMask::Uppercase | IltasatuMask::Lowercase)
 {
 	auto boxSizer = new wxStaticBoxSizer(wxVERTICAL, this, "Options");
-	auto gridSizer = new  wxGridSizer(2, 2, Style::Border, Style::Border);
+	auto gridSizer = new  wxGridSizer(6, 2, Style::Border, Style::Border);
 
 	{
 		auto passwordLengthSpin = new wxSpinCtrl(
@@ -58,6 +59,58 @@ MainWindow::MainWindow() :
 		gridSizer->Add(passwordCountSpin, 1, wxEXPAND);
 	}
 
+	{
+		auto punctuationCheckBox = new wxCheckBox(this, wxID_ANY, " ! \" # $ % & ' ( ) * + , - . / : ; < = > ? @ [ \\ ] ^ _ ` { | } ~");
+		punctuationCheckBox->SetValue((_characterMask & IltasatuMask::Punctuation) == IltasatuMask::Punctuation);
+
+		punctuationCheckBox->Bind(wxEVT_CHECKBOX, [this](wxCommandEvent& e)->void
+		{
+			_characterMask ^= IltasatuMask::Punctuation;
+		});
+
+		gridSizer->Add(new wxStaticText(this, wxID_ANY, "Punctuation:"), 1, wxEXPAND);
+		gridSizer->Add(punctuationCheckBox, 1, wxEXPAND);
+	}
+
+	{
+		auto numbersCheckBox = new wxCheckBox(this, wxID_ANY, " 0 1 2 3 4 5 6 7 8 9");
+		numbersCheckBox->SetValue((_characterMask & IltasatuMask::Number) == IltasatuMask::Number);
+
+		numbersCheckBox->Bind(wxEVT_CHECKBOX, [this](wxCommandEvent& e)->void
+		{
+			_characterMask ^= IltasatuMask::Number;
+		});
+
+		gridSizer->Add(new wxStaticText(this, wxID_ANY, "Numbers:"), 1, wxEXPAND);
+		gridSizer->Add(numbersCheckBox, 1, wxEXPAND);
+	}
+
+	{
+		auto uppercaseCheckBox = new wxCheckBox(this, wxID_ANY, " A B C D E F G H I J K L M N O P Q R S T U V W X Y Z");
+		uppercaseCheckBox->SetValue((_characterMask & IltasatuMask::Uppercase) == IltasatuMask::Uppercase);
+
+		uppercaseCheckBox->Bind(wxEVT_CHECKBOX, [this](wxCommandEvent& e)->void
+		{
+			_characterMask ^= IltasatuMask::Uppercase;
+		});
+
+		gridSizer->Add(new wxStaticText(this, wxID_ANY, "Uppercase:"), 1, wxEXPAND);
+		gridSizer->Add(uppercaseCheckBox, 1, wxEXPAND);
+	}
+
+	{
+		auto lowercaseCheckBox = new wxCheckBox(this, wxID_ANY, " a b c d e f g h i j k l m n o p q r s t u v w x y z");
+		lowercaseCheckBox->SetValue((_characterMask & IltasatuMask::Lowercase) == IltasatuMask::Lowercase);
+
+		lowercaseCheckBox->Bind(wxEVT_CHECKBOX, [this](wxCommandEvent& e)->void
+		{
+			_characterMask ^= IltasatuMask::Lowercase;
+		});
+
+		gridSizer->Add(new wxStaticText(this, wxID_ANY, "Lowecase:"), 1, wxEXPAND);
+		gridSizer->Add(lowercaseCheckBox, 1, wxEXPAND);
+	}
+
 	boxSizer->Add(gridSizer, 2, wxEXPAND);
 
 	{
@@ -82,7 +135,7 @@ void MainWindow::GeneratePasswords()
 
 	IltasatuOptions options;
 	options.Size = _passwordLength;
-	options.Mask = IltasatuMask::Uppercase | IltasatuMask::Lowercase;
+	options.Mask = _characterMask;
 
 	IltasatuHandle iltasatu = IltasatuInitialize(options);
 
@@ -91,8 +144,7 @@ void MainWindow::GeneratePasswords()
 		const char* rawPassword = IltasatuGenerate(iltasatu);
 		auto password = wxString::FromAscii(rawPassword, _passwordLength);
 
-		_passwordList->AppendText(password);
-		_passwordList->AppendText('\n');
+		_passwordList->AppendText(password + '\n');
 	}
 
 	IltasatuDelete(iltasatu);
