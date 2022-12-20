@@ -9,7 +9,7 @@ Iltasatu::Iltasatu(IltasatuOptions options) :
 
 	if (!_context)
 	{
-		throw std::runtime_error("fopen failed!");
+		throw std::runtime_error("fopen failed");
 	}
 }
 
@@ -19,13 +19,18 @@ Iltasatu::~Iltasatu()
 	{
 		fclose(reinterpret_cast<FILE*>(_context));
 	}
+
+	if (_data)
+	{
+		delete[] data;
+	}
 }
 
 char* Iltasatu::Generate()
 {
 	if (!_context || !_data)
 	{
-		return nullptr;
+		throw std::logic_error("Iltasatu is not initialized");
 	}
 
 	size_t bytesRead = fread(
@@ -34,5 +39,10 @@ char* Iltasatu::Generate()
 		_options.Size,
 		reinterpret_cast<FILE*>(_context));
 
-	return bytesRead == _options.Size ? _data : nullptr;
+	if (bytesRead != _options.Size)
+	{
+		throw std::runtime_error("fread failed");
+	}
+
+	return _data;
 }

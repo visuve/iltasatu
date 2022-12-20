@@ -5,28 +5,15 @@
 #include "iltasatu.h"
 #include "iltasatu.hpp"
 
-#include <algorithm>
-#include <random>
 #include <set>
 
-namespace
-{
-	template <typename T>
-	static T RandomNumber(
-		T max = std::numeric_limits<T>::max(),
-		T min = std::numeric_limits<T>::min())
-	{
-		thread_local std::random_device device;
-		thread_local std::mt19937 engine(device());
-		thread_local std::uniform_int_distribution<T> distribution(min, max);
-
-		return distribution(engine);
-	}
-}
+#ifdef _DEBUG
+#include <iostream>
+#endif
 
 namespace Alphabet
 {
-	const std::set<char> Punctuation =
+	constexpr char Punctuation[] =
 	{
 		' ', '!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/',
 		':', ';', '<', '=', '>', '?', '@',
@@ -34,50 +21,42 @@ namespace Alphabet
 		'{', '|', '}', '~'
 	};
 
-	const std::set<char> Number =
+	constexpr char Number[] =
 	{
 		'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'
 	};
 
-	const std::set<char> Uppercase =
+	constexpr char Uppercase[] =
 	{
 		'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
 		'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
 	};
 
-	const std::set<char> Lowercase =
+	constexpr char Lowercase[] =
 	{
 		'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
 		'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
 	};
 
-	std::set<char> Allowed(uint32_t mask)
+	std::string Allowed(uint32_t mask)
 	{
-		std::set<char> result;
+		std::string result;
 
 		for (uint32_t bit = 1; mask; mask &= ~bit, bit <<= 1)
 		{
 			switch (mask & bit)
 			{
 				case IltasatuMask::Punctuation:
-					result.insert(
-						Alphabet::Punctuation.cbegin(),
-						Alphabet::Punctuation.cend());
+					result += Alphabet::Punctuation;
 					break;
 				case IltasatuMask::Number:
-					result.insert(
-						Alphabet::Number.cbegin(),
-						Alphabet::Number.cend());
+					result += Alphabet::Number;
 					break;
 				case IltasatuMask::Uppercase:
-					result.insert(
-						Alphabet::Uppercase.cbegin(),
-						Alphabet::Uppercase.cend());
+					result += Alphabet::Uppercase;
 					break;
 				case IltasatuMask::Lowercase:
-					result.insert(
-						Alphabet::Lowercase.cbegin(),
-						Alphabet::Lowercase.cend());
+					result += Alphabet::Lowercase;
 					break;
 			}
 		}
@@ -86,29 +65,30 @@ namespace Alphabet
 	}
 }
 
-void Iltasatu::Filter()
+
+IltasatuHandle Iltasatu::Initialize(IltasatuOptions options)
+{
+	auto iltasatu = new Iltasatu(options);
+
+	iltasatu->_allowed = Alphabet::Allowed(options.Mask);
+
+	return reinterpret_cast<IltasatuHandle>(iltasatu);
+}
+
+void Iltasatu::Mutate()
 {
 	if (!_options.Mask)
 	{
-		return; // Nothing to filter
+		return;
 	}
 
-	std::set<char> allowed = Alphabet::Allowed(_options.Mask);
-	size_t lastAllowedIndex = allowed.size() - 1;
+	const size_t lastAllowedIndex = _allowed.size() - 1;
 
 	for (size_t i = 0; i < _options.Size; ++i)
 	{
-		char& x = _data[i];
-
-		auto iter = allowed.find(x);
-
-		if (iter == allowed.end())
-		{
-			iter = allowed.begin();
-			size_t randomIndex = RandomNumber(lastAllowedIndex);
-			std::advance(iter, randomIndex);
-			x = *iter;
-		}
+		char& c = _data[i];
+		size_t randomAllowedIndex = c % lastAllowedIndex;
+		c = _allowed[randomAllowedIndex];
 	}
 }
 
@@ -116,10 +96,13 @@ IltasatuHandle IltasatuInitialize(IltasatuOptions options)
 {
 	try
 	{
-		return reinterpret_cast<IltasatuHandle>(new Iltasatu(options));
+		return Iltasatu::Initialize(options);
 	}
-	catch (...)
+	catch ([[maybe_unused]] const std::exception& e)
 	{
+#ifdef _DEBUG
+		std::cerr << e.what() << std::endl;
+#endif
 		return nullptr;
 	}
 }
@@ -133,17 +116,41 @@ char* IltasatuGenerate(IltasatuHandle handle)
 
 	auto iltasatu = reinterpret_cast<Iltasatu*>(handle);
 
-	char* result = iltasatu->Generate();
+	if (!iltasatu)
+	{
+		return nullptr;
+	}
 
-	iltasatu->Filter();
+	try
+	{
+		char* result = iltasatu->Generate();
+		
+		iltasatu->Mutate();
 
-	return result;
+		return result;
+	}
+	catch ([[maybe_unused]] const std::exception& e)
+	{
+#ifdef _DEBUG
+		std::cerr << e.what() << std::endl;
+#endif
+		return nullptr;
+	}
 }
 
 void IltasatuDelete(IltasatuHandle handle)
 {
-	if (handle)
+	if (!handle)
 	{
-		delete reinterpret_cast<Iltasatu*>(handle);
+		return;
 	}
+
+	auto iltasatu =  reinterpret_cast<Iltasatu*>(handle);
+
+	if (!iltasatu)
+	{
+		return;
+	}
+
+	delete iltasatu;
 }

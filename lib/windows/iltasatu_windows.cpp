@@ -30,14 +30,17 @@ Iltasatu::~Iltasatu()
 		BCryptCloseAlgorithmProvider(_context, 0);
 	}
 
-	delete[] _data;
+	if (_data)
+	{
+		delete[] _data;
+	}
 }
 
 char* Iltasatu::Generate()
 {
 	if (!_context || !_data)
 	{
-		return nullptr;
+		throw std::logic_error("Iltasatu is not initialized");
 	}
 
 	NTSTATUS status = BCryptGenRandom(
@@ -46,5 +49,10 @@ char* Iltasatu::Generate()
 		static_cast<ULONG>(_options.Size),
 		0);
 
-	return SUCCEEDED(status) ? _data : nullptr;
+	if (FAILED(status))
+	{
+		throw std::runtime_error("BCryptOpenAlgorithmProvider failed");
+	}
+
+	return _data;
 }

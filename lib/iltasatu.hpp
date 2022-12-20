@@ -6,18 +6,23 @@
 
 #include "iltasatu.h"
 
+#include <string>
+
 class Iltasatu
 {
 public:
-	Iltasatu(IltasatuOptions);
+	static IltasatuHandle Initialize(IltasatuOptions);
 
 	virtual ~Iltasatu();
 
 	char* Generate();
-	void Filter();
+	void Mutate();
 
 private:
+	Iltasatu(IltasatuOptions);
+
 	void* _context = nullptr;
 	IltasatuOptions _options;
+	std::string _allowed;
 	char* _data = nullptr;
 };
