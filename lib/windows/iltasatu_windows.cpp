@@ -7,9 +7,7 @@
 
 #pragma comment(lib, "bcrypt.lib")
 
-Iltasatu::Iltasatu(IltasatuOptions options) :
-	_options(options),
-	_data(new char[options.Size])
+Iltasatu::Iltasatu()
 {
 	NTSTATUS status = BCryptOpenAlgorithmProvider(
 		reinterpret_cast<BCRYPT_ALG_HANDLE*>(&_context),
@@ -29,24 +27,19 @@ Iltasatu::~Iltasatu()
 	{
 		BCryptCloseAlgorithmProvider(_context, 0);
 	}
-
-	if (_data)
-	{
-		delete[] _data;
-	}
 }
 
 char* Iltasatu::Generate()
 {
-	if (!_context || !_data)
+	if (!_context)
 	{
 		throw std::logic_error("Iltasatu is not initialized");
 	}
 
 	NTSTATUS status = BCryptGenRandom(
 		_context,
-		reinterpret_cast<PUCHAR>(_data),
-		static_cast<ULONG>(_options.Size),
+		reinterpret_cast<PUCHAR>(_random.data()),
+		static_cast<ULONG>(_random.size()),
 		0);
 
 	if (FAILED(status))
@@ -54,5 +47,5 @@ char* Iltasatu::Generate()
 		throw std::runtime_error("BCryptOpenAlgorithmProvider failed");
 	}
 
-	return _data;
+	return _random.data();
 }

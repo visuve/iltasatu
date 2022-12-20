@@ -68,8 +68,10 @@ namespace Alphabet
 
 IltasatuHandle Iltasatu::Initialize(IltasatuOptions options)
 {
-	auto iltasatu = new Iltasatu(options);
+	auto iltasatu = new Iltasatu();
 
+	iltasatu->_mask = options.Mask;
+	iltasatu->_random = std::string(options.Size, '\0');
 	iltasatu->_allowed = Alphabet::Allowed(options.Mask);
 
 	return reinterpret_cast<IltasatuHandle>(iltasatu);
@@ -77,16 +79,15 @@ IltasatuHandle Iltasatu::Initialize(IltasatuOptions options)
 
 void Iltasatu::Mutate()
 {
-	if (!_options.Mask)
+	if (!_mask)
 	{
 		return;
 	}
 
 	const size_t lastAllowedIndex = _allowed.size() - 1;
 
-	for (size_t i = 0; i < _options.Size; ++i)
+	for (char& c : _random)
 	{
-		char& c = _data[i];
 		size_t randomAllowedIndex = c % lastAllowedIndex;
 		c = _allowed[randomAllowedIndex];
 	}

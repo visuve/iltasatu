@@ -1,12 +1,9 @@
 #include "../iltasatu.hpp"
 #include <stdexcept>
 
-Iltasatu::Iltasatu(IltasatuOptions options) :
-	_options(options),
-	_data(new char[options.Size])
+Iltasatu::Iltasatu() :
+	_context(fopen("/dev/urandom", "r"))
 {
-	_context = fopen("/dev/urandom", "r");
-
 	if (!_context)
 	{
 		throw std::runtime_error("fopen failed");
@@ -19,30 +16,25 @@ Iltasatu::~Iltasatu()
 	{
 		fclose(reinterpret_cast<FILE*>(_context));
 	}
-
-	if (_data)
-	{
-		delete[] data;
-	}
 }
 
 char* Iltasatu::Generate()
 {
-	if (!_context || !_data)
+	if (!_context)
 	{
 		throw std::logic_error("Iltasatu is not initialized");
 	}
 
 	size_t bytesRead = fread(
-		_data, 
+		_random.data(),
 		sizeof(char), 
-		_options.Size,
+		_random.size(),
 		reinterpret_cast<FILE*>(_context));
 
-	if (bytesRead != _options.Size)
+	if (bytesRead != _random.size())
 	{
 		throw std::runtime_error("fread failed");
 	}
 
-	return _data;
+	return _random.data();
 }

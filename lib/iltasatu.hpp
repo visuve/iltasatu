@@ -19,10 +19,10 @@ public:
 	void Mutate();
 
 private:
-	Iltasatu(IltasatuOptions);
+	Iltasatu();
 
+	uint32_t _mask = 0;
 	void* _context = nullptr;
-	IltasatuOptions _options;
 	std::string _allowed;
-	char* _data = nullptr;
+	std::string _random;
 };
