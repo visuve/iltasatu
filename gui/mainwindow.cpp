@@ -2,58 +2,63 @@
 
 #include "mainwindow.hpp"
 
-namespace Styles
+namespace Style
 {
 	constexpr long Frame = wxDEFAULT_FRAME_STYLE & ~(wxRESIZE_BORDER | wxMAXIMIZE_BOX | wxMINIMIZE_BOX);
-	constexpr int Border = 3;
+	constexpr int Border = 5;
 }
 
 MainWindow::MainWindow() :
-	wxFrame(nullptr, wxID_ANY, wxT("Iltasatu"), wxDefaultPosition, wxSize(600, 800), Styles::Frame),
+	wxFrame(nullptr, wxID_ANY, wxT("Iltasatu"), wxDefaultPosition, wxSize(800, 600), Style::Frame),
 	_passwordList(
 		new wxTextCtrl(this, wxID_ANY, "Your passwords will be generated here", wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE))
 {
-	auto sizer = new wxBoxSizer(wxVERTICAL);
+	auto boxSizer = new wxStaticBoxSizer(wxVERTICAL, this, "Options");
+	auto gridSizer = new  wxGridSizer(2, 2, Style::Border, Style::Border);
 
 	{
-		auto passwordLength = new wxSpinCtrl(
+		auto passwordLengthSpin = new wxSpinCtrl(
 			this,
 			wxID_ANY,
-			wxT("Password length"),
+			wxEmptyString,
 			wxDefaultPosition,
 			wxDefaultSize,
 			wxSP_ARROW_KEYS | wxALIGN_RIGHT,
 			3,
-			128,
-			0);
+			100,
+			_passwordLength);
 
-		passwordLength->Bind(wxEVT_SPINCTRL, [this](wxSpinEvent& e)->void
+		passwordLengthSpin->Bind(wxEVT_SPINCTRL, [this](wxSpinEvent& e)->void
 		{
 			_passwordLength = e.GetValue();
 		});
 
-		sizer->Add(passwordLength, 1, wxEXPAND | wxALL, Styles::Border);
+		gridSizer->Add(new wxStaticText(this, wxID_ANY, "Password length:"), 1, wxEXPAND);
+		gridSizer->Add(passwordLengthSpin, 1, wxEXPAND);
 	}
 
 	{
-		auto passwordCount = new wxSpinCtrl(
+		auto passwordCountSpin = new wxSpinCtrl(
 			this,
 			wxID_ANY,
-			wxT("Password count"),
+			wxEmptyString,
 			wxDefaultPosition,
 			wxDefaultSize,
 			wxSP_ARROW_KEYS | wxALIGN_RIGHT,
 			1,
 			1000,
-			0);
+			_passwordCount);
 
-		passwordCount->Bind(wxEVT_SPINCTRL, [this](wxSpinEvent& e)->void
+		passwordCountSpin->Bind(wxEVT_SPINCTRL, [this](wxSpinEvent& e)->void
 		{
 			_passwordCount = e.GetValue();
 		});
 
-		sizer->Add(passwordCount, 1, wxEXPAND | wxALL, Styles::Border);
+		gridSizer->Add(new wxStaticText(this, wxID_ANY, "Password count:"), 1, wxEXPAND);
+		gridSizer->Add(passwordCountSpin, 1, wxEXPAND);
 	}
+
+	boxSizer->Add(gridSizer, 2, wxEXPAND);
 
 	{
 		auto generateButton = new wxButton(this, wxID_ANY, wxT("Generate!"));
@@ -63,12 +68,12 @@ MainWindow::MainWindow() :
 			GeneratePasswords();
 		});
 
-		sizer->Add(generateButton, 1, wxEXPAND | wxALL, Styles::Border);
+		boxSizer->Add(generateButton, 1, wxEXPAND);
 	}
 
-	sizer->Add(_passwordList, 1, wxEXPAND | wxALL, Styles::Border);
+	boxSizer->Add(_passwordList, 15, wxEXPAND);
 
-	SetSizer(sizer);
+	SetSizer(boxSizer);
 }
 
 void MainWindow::GeneratePasswords()

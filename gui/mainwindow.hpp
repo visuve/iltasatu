@@ -9,6 +9,6 @@ public:
 
 private:
 	wxTextCtrl* _passwordList = nullptr;
-	size_t _passwordLength = 0;
-	size_t _passwordCount = 0;
+	size_t _passwordLength = 6;
+	size_t _passwordCount = 10;
 };

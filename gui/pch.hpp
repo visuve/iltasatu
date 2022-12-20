@@ -4,6 +4,7 @@
 #include <wx/log.h>
 #include <wx/sizer.h>
 #include <wx/spinctrl.h>
+#include <wx/stattext.h>
 #include <wx/textctrl.h>
 #include <wx/utils.h>
 #include <wx/wxprec.h>
