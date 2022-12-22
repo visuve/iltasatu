@@ -107,7 +107,7 @@ MainWindow::MainWindow() :
 			_characterMask ^= IltasatuMask::Lowercase;
 		});
 
-		gridSizer->Add(new wxStaticText(this, wxID_ANY, "Lowecase:"), 1, wxEXPAND);
+		gridSizer->Add(new wxStaticText(this, wxID_ANY, "Lowercase:"), 1, wxEXPAND);
 		gridSizer->Add(lowercaseCheckBox, 1, wxEXPAND);
 	}
 
