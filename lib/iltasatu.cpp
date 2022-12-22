@@ -47,16 +47,16 @@ namespace Alphabet
 			switch (mask & bit)
 			{
 				case IltasatuMask::Punctuation:
-					result += Alphabet::Punctuation;
+					result.append(Alphabet::Punctuation, sizeof(Alphabet::Punctuation));
 					break;
 				case IltasatuMask::Number:
-					result += Alphabet::Number;
+					result.append(Alphabet::Number, sizeof(Alphabet::Number));
 					break;
 				case IltasatuMask::Uppercase:
-					result += Alphabet::Uppercase;
+					result.append(Alphabet::Uppercase, sizeof(Alphabet::Uppercase));
 					break;
 				case IltasatuMask::Lowercase:
-					result += Alphabet::Lowercase;
+					result.append(Alphabet::Lowercase, sizeof(Alphabet::Lowercase));
 					break;
 			}
 		}
